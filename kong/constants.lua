@@ -58,6 +58,7 @@ local protocols_with_subsystem = {
   udp = "stream",
   grpc = "http",
   grpcs = "http",
+  fcgi = "http"
 }
 local protocols = {}
 for p,_ in pairs(protocols_with_subsystem) do

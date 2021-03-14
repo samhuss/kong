@@ -1111,7 +1111,8 @@ return {
       -- if there is a gRPC service in the context, don't re-execute the pre-access
       -- phase handler - it has been executed before the internal redirect
       if ctx.service and (ctx.service.protocol == "grpc" or
-                          ctx.service.protocol == "grpcs")
+                          ctx.service.protocol == "grpcs" or
+                          ctx.service.protocol == "fcgi" )
       then
         return
       end
@@ -1269,10 +1270,20 @@ return {
       var.upstream_x_forwarded_path   = forwarded_path
       var.upstream_x_forwarded_prefix = forwarded_prefix
 
+      if service and service.protocol == 'fcgi' then
+        var.upstream_path = service.path
+        -- var.fastcgi_root = service.path
+      end
+      
       -- At this point, the router and `balancer_setup_stage1` have been
       -- executed; detect requests that need to be redirected from `proxy_pass`
       -- to `grpc_pass`. After redirection, this function will return early
       if service and var.kong_proxy_mode == "http" then
+
+        if service.protocol == "fcgi"  then
+          return ngx.exec("@fcgi")
+        end
+
         if service.protocol == "grpc" or service.protocol == "grpcs" then
           return ngx.exec("@grpc")
         end

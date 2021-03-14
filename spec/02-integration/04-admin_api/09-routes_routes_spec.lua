@@ -350,7 +350,7 @@ for _, strategy in helpers.each_strategy() do
                 message = "schema violation " ..
                           "(protocols.1: expected one of: grpc, grpcs, http, https, tcp, tls, udp)",
                 fields = {
-                  protocols = { "expected one of: grpc, grpcs, http, https, tcp, tls, udp" },
+                  protocols = { "expected one of: fcgi, grpc, grpcs, http, https, tcp, tls, udp" },
                 }
               }, cjson.decode(body))
 
@@ -368,12 +368,12 @@ for _, strategy in helpers.each_strategy() do
                 code    = Errors.codes.SCHEMA_VIOLATION,
                 name    = "schema violation",
                 message = "2 schema violations " ..
-                  "(protocols.1: expected one of: grpc, grpcs, http, https, tcp, tls, udp; " ..
+                  "(protocols.1: expected one of: fcgi, grpc, grpcs, http, https, tcp, tls, udp; " ..
                   "service.protocol: expected one of: grpc, grpcs, http, https, tcp, tls, udp)",
                 fields = {
-                  protocols = { "expected one of: grpc, grpcs, http, https, tcp, tls, udp" },
+                  protocols = { "expected one of: fcgi, grpc, grpcs, http, https, tcp, tls, udp" },
                   service = {
-                    protocol = "expected one of: grpc, grpcs, http, https, tcp, tls, udp"
+                    protocol = "expected one of:  grpc, grpcs, http, https, tcp, tls, udp"
                   }
                 }
               }, cjson.decode(body))

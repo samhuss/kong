@@ -35,22 +35,8 @@ local function warmup_dns(premature, hosts, count)
 
   local start = ngx.now()
 
-  local upstreams_dao = kong.db["upstreams"]
-  local upstreams_names = {}
-  if upstreams_dao then
-    for upstream, err in upstreams_dao:each(nil, GLOBAL_QUERY_OPTS) do
-      upstreams_names[upstream.name] = true
-    end
-  end
-
   for i = 1, count do
-    local host = hosts[i]
-    local must_warm_up = upstreams_names[host] == nil
-
-    -- warmup DNS entry only if host is not an upstream name
-    if must_warm_up then
-      kong.dns.toip(host)
-    end
+    kong.dns.toip(hosts[i])
   end
 
   local elapsed = floor((ngx.now() - start) * 1000)

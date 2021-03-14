@@ -256,6 +256,50 @@ server {
         proxy_pass            $upstream_scheme://kong_upstream$upstream_uri;
     }
 
+
+    location @fcgi {
+        internal;
+    #    root /app/public; # root will be passed from $upstream_path variable = service.path
+        default_type         '';
+        set $upstream_path   '';
+        set $kong_proxy_mode 'fcgi';
+
+        # disable for not to take only the $upstream_path as the only full path
+        #fastcgi_param  SCRIPT_FILENAME    $upstream_path; 
+        fastcgi_param  QUERY_STRING       $query_string;
+        fastcgi_param  REQUEST_METHOD     $request_method;
+        fastcgi_param  CONTENT_TYPE       $content_type;
+        fastcgi_param  CONTENT_LENGTH     $content_length;
+        fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
+        fastcgi_param  REQUEST_URI        $request_uri;
+        fastcgi_param  DOCUMENT_URI       $document_uri;
+        fastcgi_param  DOCUMENT_ROOT      $document_root;
+        fastcgi_param  SERVER_PROTOCOL    $server_protocol;
+        fastcgi_param  HTTPS              $https if_not_empty;
+        fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+        fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
+        fastcgi_param  REMOTE_ADDR        $remote_addr;
+        fastcgi_param  REMOTE_PORT        $remote_port;
+        fastcgi_param  SERVER_ADDR        $server_addr;
+        fastcgi_param  SERVER_PORT        $server_port;
+        fastcgi_param  SERVER_NAME        $server_name;
+        # PHP only, required if PHP was built with --enable-force-cgi-redirect
+        fastcgi_param  REDIRECT_STATUS    200;
+        fastcgi_index index.php;
+        # take value of service.path + any uri path to the service
+        fastcgi_param SCRIPT_FILENAME $upstream_path$fastcgi_script_name;
+        # will pass url:port , ex: servcie1:9000
+        fastcgi_pass kong_upstream;
+
+        # original nginx path formation
+        #fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+        #fastcgi_param SCRIPT_FILENAME $fastcgi_root$fastcgi_script_name;
+        # if we want to make all the microservices with fixed root value /app/public
+        #fastcgi_param SCRIPT_FILENAME /app/public$fastcgi_script_name;
+    }
+
+
     location @grpc {
         internal;
         default_type         '';
